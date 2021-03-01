@@ -1,0 +1,38 @@
+{
+  "name": "seed",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": ".",
+  "dependencies": {
+    "createjs-module": "^0.8.3",
+    "dateformat": "^3.0.3",
+    "json-loader": "^0.5.7"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.2",
+    "babel-preset-env": "^1.7.0",
+    "gulp": "^4.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-jshint": "^2.1.0",
+    "gulp-uglify": "^3.0.1",
+    "webpack": "^4.20.0",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "scripts": {
+    "start": "http-server",
+    "server": "webpack -wd",
+    "clean": "rimraf dist/assets/",
+    "predev": "devcompile.bat",
+    "dev": "gulp dev",
+    "postdev": "webpack-dev-server --open",
+    "postdev2": "http-server -o",
+    "prebuild": "webpack --config webpack.config.js",
+    "build": "gulp build",
+    "postbuild": "distserve.bat",
+
+    "copy2lol": "gulp copy2lol"
+  }
+}

@@ -1,0 +1,246 @@
+import { Text } from 'createjs-module';
+
+class TextUtil {
+	//----------------------------------------------------------------------------------
+	//.. Text usage in the canvas font directly
+	//----------------------------------------------------------------------------------
+	static defaultStyle(_size = 18, _font = 'r', _color = '#FFF', _width = 600) {
+		let fontName = 'TISClassEdge_Regular';
+		switch (_font) {
+			case 'r':
+				break;
+			case 'b':
+				fontName = 'TISClassEdge_Bold';
+				break;
+			case 'i':
+				fontName = 'TISClassEdge_Italics';
+				break;
+			case 'bi':
+			case 'ib':
+				fontName = 'TISClassEdge_BoldItalics';
+				break;
+			default:
+				fontName = 'TISClassEdge_Regular';
+		}
+		return {
+			color: _color,
+			width: _width,
+			size: _size,
+			font: fontName,
+			style: 'normal ' + _size + 'px ' + fontName
+		};
+	}
+
+	/* static getDefaultFont({ _size = 24, _font = 'r' }) {
+		let fontName = 'TISClassEdge_Regular';
+		switch (_font) {
+			case 'r':
+				break;
+			case 'b':
+				fontName = 'TISClassEdge_Bold';
+				break;
+			case 'i':
+				fontName = 'TISClassEdge_Italics';
+				break;
+			case 'bi':
+			case 'ib':
+				fontName = 'TISClassEdge_BoldItalics';
+				break;
+			default:
+				fontName = 'TISClassEdge_Regular';
+		}
+		return { size: _size, font: fontName, fontStyle: 'normal ' + _size + 'px ' + fontName };
+	} 
+
+    static embededFontStyle(fontName, size, color, width) {
+
+        let s = "normal " + size + "px " + fontName;
+        let c = color;
+        let w = width;
+
+        return { "style": s, "color": c, "width": w }
+    }*/
+
+	//----------------------------------------------------------------------------------
+
+	//... below 2 functions are for text-break and formatting
+
+	static getText({ x, y, t, f, lCanvas }) {
+		if (t.indexOf('<FONT FACE') >= 0) {
+			return TextUtil.formatText({ x, y, t, f, lCanvas });
+		} else {
+			let txt = new Text();
+			txt.x = x;
+			txt.y = y;
+			txt.font = f.style;
+			txt.color = f.color;
+			txt.text = t;
+			txt.textAlign = 'left';
+			txt.lineWidth = f.width;
+			lCanvas.addChild(txt);
+			return txt;
+		}
+	}
+
+	static formatText({ x, y, t, f, lCanvas }) {
+		let txt = new Text();
+		let tmpX = x;
+		if (t.indexOf('{') >= 0) {
+			t.replace('{', '$$OPCB$$');
+		}
+		if (t.indexOf('}') >= 0) {
+			t.replace('}', '$$CLCB$$');
+		}
+		if (t.indexOf('TIS_Sup') >= 0) {
+			// debugger;
+			let arr = [];
+			arr = t.split('<FONT FACE="TIS_Sup">');
+			let str = arr.join(' ');
+			arr = str.split(' ');
+
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i].indexOf('</FONT>') >= 0) {
+					let txt = new Text();
+					let txtToAdd = arr[i].split('</FONT>')[0];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = 'TISSup';
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				} else {
+					let txt = new Text();
+					let txtToAdd = arr[i];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = f.style;
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				}
+			}
+		} else if (t.indexOf('TIS_Sub') >= 0) {
+			// debugger;
+			let arr = [];
+			arr = t.split('<FONT FACE="TIS_Sub">');
+			let str = arr.join(' ');
+			arr = str.split(' ');
+
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i].indexOf('</FONT>') >= 0) {
+					let txt = new Text();
+					let txtToAdd = arr[i].split('</FONT>')[0];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = 'TISSub';
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				} else {
+					let txt = new Text();
+					let txtToAdd = arr[i];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = f.style;
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				}
+			}
+		} else if (t.indexOf('TIS_Symbol') >= 0) {
+			// debugger;
+			let tmpArr = [];
+			tmpArr = t.split('<FONT FACE="TIS_Symbol">');
+			let str = tmpArr.join(' ');
+			tmpArr = str.split(' ');
+			//debugger;
+			for (var i = 0; i < tmpArr.length; i++) {
+				if (tmpArr[i].indexOf('</FONT>') >= 0) {
+					let txt = new Text();
+					let tmpArr1 = [];
+					//debugger;
+					tmpArr1 = tmpArr[i].split('</FONT>');
+
+					let str1 = tmpArr[i];
+					let str2 = str1.substring(str1.indexOf('>'), str1.length);
+					if (str2.length > 1) {
+						tmpArr.splice(i + 1, 0, str2.slice(1, str.length));
+					}
+					let txtToAdd = tmpArr1[0];
+
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = 'TISSup';
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				} else {
+					let txt = new Text();
+					let txtToAdd = tmpArr[i];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = f.style;
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				}
+			}
+		} else if (t.indexOf('Shusha') >= 0) {
+			console.log('Shusha encountered');
+			let arr = [];
+			arr = t.split('<FONT FACE="Shusha">');
+			let str = arr.join(' ');
+			arr = str.split(' ');
+			console.log(arr, str);
+
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i].indexOf('</FONT>') >= 0) {
+					let txt = new Text();
+					let txtToAdd = arr[i].split('</FONT>')[0];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = 'Shusha';
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				} else {
+					let txt = new Text();
+					let txtToAdd = arr[i];
+					txt.x = tmpX;
+					txt.y = y;
+					txt.font = f.style;
+					txt.text = txtToAdd;
+					txt.color = f.color;
+					txt.textAlign = 'left';
+					txt.lineWidth = f.width;
+					lCanvas.addChild(txt);
+					tmpX += txt.getMeasuredWidth() + 2;
+				}
+			}
+		}
+		return txt;
+	}
+}
+
+export default TextUtil;
